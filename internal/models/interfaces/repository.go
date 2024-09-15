@@ -1,7 +1,7 @@
-package _interface
+package interfaces
 
 import (
-	. "UsersService/internal/models/entity"
+	. "Users/internal/models/entity"
 )
 
 type UserRepository interface {

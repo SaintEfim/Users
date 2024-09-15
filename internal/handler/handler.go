@@ -14,15 +14,15 @@ import (
 	"Users/docs"
 	"Users/internal/models/dto"
 	"Users/internal/models/entity"
-	"Users/internal/models/interface"
+	"Users/internal/models/interfaces"
 )
 
 type Handler struct {
 	cfg *config.Config
-	rep _interface.UserRepository
+	rep interfaces.UserRepository
 }
 
-func InitServer(cfg *config.Config, rep _interface.UserRepository) *Handler {
+func InitServer(cfg *config.Config, rep interfaces.UserRepository) *Handler {
 	return &Handler{
 		cfg: cfg,
 		rep: rep,
