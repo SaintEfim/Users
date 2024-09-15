@@ -1,64 +1,32 @@
 package handler
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/ulule/deepcopier"
-
-	"Users/config"
-	"Users/docs"
 	"Users/internal/models/dto"
 	"Users/internal/models/entity"
 	"Users/internal/models/interfaces"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ulule/deepcopier"
 )
 
 type Handler struct {
-	cfg *config.Config
 	rep interfaces.UserRepository
 }
 
-func InitServer(cfg *config.Config, rep interfaces.UserRepository) *Handler {
+func InitHandler(rep interfaces.UserRepository) *Handler {
 	return &Handler{
-		cfg: cfg,
 		rep: rep,
 	}
 }
 
-func (handler *Handler) Run() error {
-	router := gin.Default()
-	handler.setGinMode()
-	handler.configureSwagger(router)
-	handler.configureRouter(router)
-	return router.Run(handler.cfg.HTTPServer.Url)
-}
-
-func (handler *Handler) setGinMode() {
-	mode := handler.cfg.EnvironmentVariables.Environment
-
-	switch mode {
-	case "development":
-		gin.SetMode(gin.DebugMode)
-	case "production":
-		gin.SetMode(gin.ReleaseMode)
-	case "test":
-		gin.SetMode(gin.TestMode)
-	default:
-		log.Printf("Unknown server mode: %s, defaulting to 'development'", mode)
-		gin.SetMode(gin.DebugMode)
-	}
-}
-
-func (handler *Handler) configureRouter(r *gin.Engine) {
-	r.GET("/api/v1/users", handler.HandleGet)
-	r.GET("/api/v1/users/:id", handler.HandleGetOneById)
-	r.POST("/api/v1/users", handler.HandleCreate)
-	r.DELETE("/api/v1/users/:id", handler.HandleDelete)
-	r.PUT("/api/v1/users/:id", handler.HandleUpdate)
+func (h *Handler) ConfigureRoutes(r *gin.Engine) {
+	r.GET("/api/v1/users", h.HandleGet)
+	r.GET("/api/v1/users/:id", h.HandleGetOneById)
+	r.POST("/api/v1/users", h.HandleCreate)
+	r.DELETE("/api/v1/users/:id", h.HandleDelete)
+	r.PUT("/api/v1/users/:id", h.HandleUpdate)
 }
 
 // HandleGet - godoc
@@ -191,13 +159,4 @@ func (handler *Handler) HandleUpdate(c *gin.Context) {
 	}
 
 	c.String(http.StatusOK, "User updated successfully")
-}
-
-func (handler *Handler) configureSwagger(router *gin.Engine) {
-	docs.SwaggerInfo.Title = "Users Service API"
-	docs.SwaggerInfo.Description = "This is a sample server Users server."
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Schemes = []string{"http"}
-
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

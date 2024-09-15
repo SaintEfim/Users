@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Users/internal/server"
 	"log"
 
 	"Users/config"
@@ -24,8 +25,10 @@ func main() {
 		log.Fatalf("Failed to initialize repository: %v", err)
 	}
 
-	handler := handler.InitServer(cfg, rep)
-	if err := handler.Run(); err != nil {
+	handler := handler.InitHandler(rep)
+
+	srv := server.InitServer(cfg, handler)
+	if err := srv.Run(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
