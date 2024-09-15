@@ -1,0 +1,118 @@
+package psql
+
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+
+	"github.com/google/uuid"
+	_ "github.com/lib/pq"
+
+	"Users/config"
+	. "Users/internal/models/entity"
+)
+
+type Repository struct {
+	db  *sql.DB
+	cfg *config.Config
+}
+
+func InitRepository(db *sql.DB, cfg *config.Config) (*Repository, error) {
+	return &Repository{
+		db:  db,
+		cfg: cfg,
+	}, nil
+}
+
+func (r *Repository) Get() ([]*UserEntity, error) {
+	var users []*UserEntity
+
+	rows, err := r.db.Query(retrieveAllUsers)
+	if err != nil {
+		return nil, fmt.Errorf("query execution error: %v", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		user := &UserEntity{}
+		if err := rows.Scan(&user.Id, &user.Name); err != nil {
+			return nil, fmt.Errorf("row scan error: %v", err)
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %v", err)
+	}
+
+	return users, nil
+}
+
+func (r *Repository) GetOneByID(id string) (*UserEntity, error) {
+	if _, err := uuid.Parse(id); err != nil {
+		return nil, fmt.Errorf("invalid UUID: %v", err)
+	}
+
+	user := &UserEntity{}
+
+	if err := r.db.QueryRow(retrieveOneById, id).Scan(&user.Id, &user.Name); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no user found with id: %s", id)
+		}
+		return nil, fmt.Errorf("error retrieving user: %v", err)
+	}
+
+	return user, nil
+}
+
+func (r *Repository) Create(user *UserEntity) error {
+	user.Id, _ = uuid.NewRandom()
+	if _, err := r.db.Exec(createUser, user.Name); err != nil {
+		return fmt.Errorf("could not insert user: %v", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) Delete(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid UUID: %v", err)
+	}
+
+	result, err := r.db.Exec(deleteUser, id)
+	if err != nil {
+		return fmt.Errorf("error executing delete query: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error retrieving rows affected count: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no user found with id: %s", id)
+	}
+
+	return nil
+}
+
+func (r *Repository) Update(id string, user *UserEntity) error {
+
+	if _, err := uuid.Parse(id); err != nil {
+		return fmt.Errorf("invalid UUID: %v", err)
+	}
+
+	result, err := r.db.Exec(updateUser, user.Name, id)
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error retrieving rows affected count: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no user found with id: %s", id)
+	}
+
+	return nil
+}
