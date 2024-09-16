@@ -6,13 +6,6 @@ definitions:
     required:
     - name
     type: object
-  dto.ErrorResponse:
-    properties:
-      message:
-        type: string
-    required:
-    - message
-    type: object
   dto.Response:
     properties:
       data: {}
@@ -61,7 +54,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
       summary: List users
       tags:
       - users
@@ -91,11 +84,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
       summary: Create a new user
       tags:
       - users
@@ -120,7 +113,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
       summary: Delete user by ID
       tags:
       - users
@@ -149,7 +142,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
       summary: Get user by ID
       tags:
       - users
@@ -184,11 +177,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.Response'
       summary: Update user by ID
       tags:
       - users

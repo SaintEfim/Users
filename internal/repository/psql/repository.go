@@ -17,11 +17,11 @@ type Repository struct {
 	cfg *config.Config
 }
 
-func InitRepository(db *sql.DB, cfg *config.Config) (*Repository, error) {
+func InitRepository(db *sql.DB, cfg *config.Config) *Repository {
 	return &Repository{
 		db:  db,
 		cfg: cfg,
-	}, nil
+	}
 }
 
 func (r *Repository) Get() ([]*entity.UserEntity, error) {
@@ -104,6 +104,9 @@ func (r *Repository) Update(id string, user *entity.UserEntity) error {
 	}
 
 	result, err := r.db.Exec(updateUser, user.Name, id)
+	if err != nil {
+		return fmt.Errorf("error executing update query: %v", err)
+	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
