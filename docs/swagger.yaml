@@ -13,6 +13,12 @@ definitions:
     required:
     - message
     type: object
+  dto.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
   dto.UpdateUserDto:
     properties:
       name:
@@ -42,11 +48,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            items:
-              $ref: '#/definitions/dto.UserDto'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserDto'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -71,7 +82,12 @@ paths:
         "201":
           description: User created successfully
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDto'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -100,7 +116,7 @@ paths:
         "200":
           description: User deleted successfully
           schema:
-            type: string
+            $ref: '#/definitions/dto.Response'
         "404":
           description: Not Found
           schema:
@@ -122,9 +138,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response
           schema:
-            $ref: '#/definitions/dto.UserDto'
+            allOf:
+            - $ref: '#/definitions/dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDto'
+              type: object
         "404":
           description: Not Found
           schema:
@@ -154,7 +175,12 @@ paths:
         "200":
           description: User updated successfully
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/dto.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDto'
+              type: object
         "400":
           description: Bad Request
           schema:

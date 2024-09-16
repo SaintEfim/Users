@@ -1,7 +1,7 @@
 ConnectionStrings:
   ServiceDB: "postgres://postgres:1234@localhost/UsersDb?sslmode=disable"
 HTTPServer:
-  Url: "localhost:8080"
+  Url: "localhost:1000"
 EnvironmentVariables:
   Environment: "development"
 

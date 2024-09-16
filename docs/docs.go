@@ -30,12 +30,24 @@ const docTemplate = `{
                 "summary": "List users",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserDto"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.UserDto"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -73,7 +85,19 @@ const docTemplate = `{
                     "201": {
                         "description": "User created successfully",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserDto"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -115,9 +139,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserDto"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserDto"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "404": {
@@ -162,7 +198,19 @@ const docTemplate = `{
                     "200": {
                         "description": "User updated successfully",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserDto"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -204,7 +252,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User deleted successfully",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/dto.Response"
                         }
                     },
                     "404": {
@@ -235,6 +283,15 @@ const docTemplate = `{
                 "message"
             ],
             "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
                 "message": {
                     "type": "string"
                 }

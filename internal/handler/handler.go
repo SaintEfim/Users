@@ -36,7 +36,7 @@ func (h *Handler) ConfigureRoutes(r *gin.Engine) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {array} dto.UserDto
+// @Success 200 {object} dto.Response{data=[]dto.UserDto} "Successful response"
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/users [get]
 func (handler *Handler) HandleGet(c *gin.Context) {
@@ -45,7 +45,10 @@ func (handler *Handler) HandleGet(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Message: fmt.Sprintf("Error retrieving users: %v", err)})
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, dto.Response{
+		Message: "Users retrieved successfully",
+		Data:    users,
+	})
 }
 
 // HandleGetOneById - godoc
@@ -55,7 +58,7 @@ func (handler *Handler) HandleGet(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} dto.UserDto
+// @Success 200 {object} dto.Response{data=dto.UserDto} "Successful response"
 // @Failure 404 {object} dto.ErrorResponse
 // @Router /api/v1/users/{id} [get]
 func (handler *Handler) HandleGetOneById(c *gin.Context) {
@@ -67,7 +70,10 @@ func (handler *Handler) HandleGetOneById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, dto.Response{
+		Message: "User retrieved successfully",
+		Data:    user,
+	})
 }
 
 // HandleCreate - godoc
@@ -77,7 +83,7 @@ func (handler *Handler) HandleGetOneById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param user body dto.CreateUserDto true "User info"
-// @Success 201 {string} string "User created successfully"
+// @Success 201 {object} dto.Response{data=dto.UserDto} "User created successfully"
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/users [post]
@@ -100,8 +106,10 @@ func (handler *Handler) HandleCreate(c *gin.Context) {
 		return
 	}
 
-	// Возвращаем ответ
-	c.String(http.StatusCreated, "User created successfully")
+	c.JSON(http.StatusCreated, dto.Response{
+		Message: "User created successfully",
+		Data:    userEntity,
+	})
 }
 
 // HandleDelete - godoc
@@ -111,7 +119,7 @@ func (handler *Handler) HandleCreate(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {string} string "User deleted successfully"
+// @Success 200 {object} dto.Response "User deleted successfully"
 // @Failure 404 {object} dto.ErrorResponse
 // @Router /api/v1/users/{id} [delete]
 func (handler *Handler) HandleDelete(c *gin.Context) {
@@ -122,7 +130,9 @@ func (handler *Handler) HandleDelete(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, "User deleted successfully")
+	c.JSON(http.StatusOK, dto.Response{
+		Message: "User deleted successfully",
+	})
 }
 
 // HandleUpdate - godoc
@@ -133,7 +143,7 @@ func (handler *Handler) HandleDelete(c *gin.Context) {
 // @Produce json
 // @Param id path string true "User ID"
 // @Param user body dto.UpdateUserDto true "User info"
-// @Success 200 {string} string "User updated successfully"
+// @Success 200 {object} dto.Response{data=dto.UserDto} "User updated successfully"
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/users/{id} [put]
@@ -159,5 +169,8 @@ func (handler *Handler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, "User updated successfully")
+	c.JSON(http.StatusOK, dto.Response{
+		Message: "User updated successfully",
+		Data:    userEntity,
+	})
 }
