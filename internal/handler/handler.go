@@ -1,14 +1,15 @@
 package handler
 
 import (
-	"Users/internal/models/dto"
-	"Users/internal/models/entity"
-	"Users/internal/models/interfaces"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/deepcopier"
+
+	"Users/internal/models/dto"
+	"Users/internal/models/entity"
+	"Users/internal/models/interfaces"
 )
 
 type Handler struct {

@@ -1,13 +1,15 @@
 package server
 
 import (
-	"Users/config"
-	"Users/docs"
-	"Users/internal/handler"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"log"
+
+	"Users/config"
+	"Users/docs"
+	"Users/internal/handler"
 )
 
 type Server struct {
