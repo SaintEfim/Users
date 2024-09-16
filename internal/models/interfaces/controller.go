@@ -1,10 +1,8 @@
 package interfaces
 
-import (
-	"Users/internal/models/entity"
-)
+import "Users/internal/models/entity"
 
-type UserRepository interface {
+type Controller interface {
 	Get() ([]*entity.UserEntity, error)
 	GetOneById(id string) (*entity.UserEntity, error)
 	Create(user *entity.UserEntity) error

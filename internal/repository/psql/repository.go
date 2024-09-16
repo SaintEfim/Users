@@ -49,7 +49,7 @@ func (r *Repository) Get() ([]*entity.UserEntity, error) {
 	return users, nil
 }
 
-func (r *Repository) GetOneByID(id string) (*entity.UserEntity, error) {
+func (r *Repository) GetOneById(id string) (*entity.UserEntity, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, fmt.Errorf("invalid UUID: %v", err)
 	}
