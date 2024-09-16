@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"Users/config"
-	. "Users/internal/models/entity"
+	"Users/internal/models/entity"
 )
 
 type Repository struct {
@@ -24,8 +24,8 @@ func InitRepository(db *sql.DB, cfg *config.Config) (*Repository, error) {
 	}, nil
 }
 
-func (r *Repository) Get() ([]*UserEntity, error) {
-	var users []*UserEntity
+func (r *Repository) Get() ([]*entity.UserEntity, error) {
+	var users []*entity.UserEntity
 
 	rows, err := r.db.Query(retrieveAllUsers)
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *Repository) Get() ([]*UserEntity, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		user := &UserEntity{}
+		user := &entity.UserEntity{}
 		if err := rows.Scan(&user.Id, &user.Name); err != nil {
 			return nil, fmt.Errorf("row scan error: %v", err)
 		}
@@ -49,12 +49,12 @@ func (r *Repository) Get() ([]*UserEntity, error) {
 	return users, nil
 }
 
-func (r *Repository) GetOneByID(id string) (*UserEntity, error) {
+func (r *Repository) GetOneByID(id string) (*entity.UserEntity, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, fmt.Errorf("invalid UUID: %v", err)
 	}
 
-	user := &UserEntity{}
+	user := &entity.UserEntity{}
 
 	if err := r.db.QueryRow(retrieveOneById, id).Scan(&user.Id, &user.Name); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -66,7 +66,7 @@ func (r *Repository) GetOneByID(id string) (*UserEntity, error) {
 	return user, nil
 }
 
-func (r *Repository) Create(user *UserEntity) error {
+func (r *Repository) Create(user *entity.UserEntity) error {
 	user.Id, _ = uuid.NewRandom()
 	if _, err := r.db.Exec(createUser, user.Name); err != nil {
 		return fmt.Errorf("could not insert user: %v", err)
@@ -97,7 +97,7 @@ func (r *Repository) Delete(id string) error {
 	return nil
 }
 
-func (r *Repository) Update(id string, user *UserEntity) error {
+func (r *Repository) Update(id string, user *entity.UserEntity) error {
 
 	if _, err := uuid.Parse(id); err != nil {
 		return fmt.Errorf("invalid UUID: %v", err)
