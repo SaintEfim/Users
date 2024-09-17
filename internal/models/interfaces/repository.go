@@ -1,8 +1,6 @@
 package interfaces
 
-import (
-	"Users/internal/models/entity"
-)
+import "Users/internal/models/entity"
 
 type Repository interface {
 	Get() ([]*entity.UserEntity, error)

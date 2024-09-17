@@ -1,13 +1,14 @@
 package main
 
 import (
-	"Users/internal/controller"
-	"Users/internal/server"
 	"log"
 
 	"Users/config"
 	"Users/internal/handler"
 	"Users/internal/repository/psql"
+
+	"Users/internal/controller"
+	"Users/internal/server"
 )
 
 func main() {
