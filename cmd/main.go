@@ -22,10 +22,10 @@ func main() {
 	}
 
 	rep := psql.InitRepository(db, cfg)
-	userService := controller.InitController(rep)
-	userHandler := handler.InitHandler(userService)
+	controller := controller.NewController(rep)
+	handler := handler.InitHandler(controller)
 
-	srv := server.InitServer(cfg, userHandler)
+	srv := server.InitServer(cfg, handler)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

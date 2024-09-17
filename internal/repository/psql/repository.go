@@ -10,6 +10,7 @@ import (
 
 	"Users/config"
 	"Users/internal/models/entity"
+	"Users/internal/models/interfaces"
 )
 
 type Repository struct {
@@ -17,7 +18,7 @@ type Repository struct {
 	cfg *config.Config
 }
 
-func InitRepository(db *sql.DB, cfg *config.Config) *Repository {
+func InitRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
 	return &Repository{
 		db:  db,
 		cfg: cfg,

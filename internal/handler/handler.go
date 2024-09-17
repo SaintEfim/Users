@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"Users/internal/controller"
 	"Users/internal/models/interfaces"
 	"fmt"
 	"net/http"
@@ -17,7 +16,7 @@ type Handler struct {
 	controller interfaces.Controller
 }
 
-func InitHandler(controller *controller.Controller) *Handler {
+func InitHandler(controller interfaces.Controller) *Handler {
 	return &Handler{controller: controller}
 }
 

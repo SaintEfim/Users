@@ -1,16 +1,17 @@
 package controller
 
 import (
+	"fmt"
+
 	"Users/internal/models/entity"
 	"Users/internal/models/interfaces"
-	"fmt"
 )
 
 type Controller struct {
-	rep interfaces.UserRepository
+	rep interfaces.Repository
 }
 
-func InitController(rep interfaces.UserRepository) *Controller {
+func NewController(rep interfaces.Repository) interfaces.Controller {
 	return &Controller{rep: rep}
 }
 

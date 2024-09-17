@@ -4,7 +4,7 @@ import (
 	"Users/internal/models/entity"
 )
 
-type UserRepository interface {
+type Repository interface {
 	Get() ([]*entity.UserEntity, error)
 	GetOneById(id string) (*entity.UserEntity, error)
 	Create(user *entity.UserEntity) error
