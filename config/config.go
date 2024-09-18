@@ -8,6 +8,7 @@ type Config struct {
 	EnvironmentVariables EnvironmentVariables `yaml:"EnvironmentVariables"`
 	ConnectionStrings    ConnectionStrings    `yaml:"ConnectionStrings"`
 	HTTPServer           HTTPServer           `yaml:"HTTPServer"`
+	Logs                 Logs                 `yaml:"Logs"`
 }
 
 type EnvironmentVariables struct {
@@ -20,6 +21,13 @@ type ConnectionStrings struct {
 
 type HTTPServer struct {
 	Url string `yaml:"Url"`
+}
+
+type Logs struct {
+	Path       string `yaml:"Path"`
+	Level      string `yaml:"Level"`
+	MaxAge     int    `yaml:"MaxAge"` // measured in Days
+	MaxBackups int    `yaml:"MaxBackups"`
 }
 
 func ReadConfig(cfgName, cfgType, cfgPath string) (*Config, error) {

@@ -6,32 +6,37 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 
 	"Users/config"
 	"Users/docs"
 	"Users/internal/handler"
+	"Users/internal/middleware"
 )
 
 type Server struct {
 	cfg     *config.Config
 	handler *handler.Handler
+	logger  *zap.Logger
 }
 
-func InitServer(cfg *config.Config, userHandler *handler.Handler) *Server {
+func InitServer(cfg *config.Config, handler *handler.Handler, logger *zap.Logger) *Server {
 	return &Server{
 		cfg:     cfg,
-		handler: userHandler,
+		handler: handler,
+		logger:  logger,
 	}
 }
 
 func (s *Server) Run() error {
-	router := gin.Default()
+	r := gin.Default()
+	r.Use(middleware.LoggingMiddleware(s.logger))
 
 	s.setGinMode()
-	s.configureSwagger(router)
-	s.handler.ConfigureRoutes(router)
+	s.configureSwagger(r)
+	s.handler.ConfigureRoutes(r)
 
-	return router.Run(s.cfg.HTTPServer.Url)
+	return r.Run(s.cfg.HTTPServer.Url)
 }
 
 func (s *Server) configureSwagger(router *gin.Engine) {

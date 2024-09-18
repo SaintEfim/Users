@@ -4,11 +4,11 @@ import (
 	"log"
 
 	"Users/config"
+	"Users/internal/controller"
 	"Users/internal/handler"
 	"Users/internal/repository/psql"
-
-	"Users/internal/controller"
 	"Users/internal/server"
+	"Users/pkg"
 )
 
 func main() {
@@ -26,7 +26,8 @@ func main() {
 	controller := controller.NewController(rep)
 	handler := handler.InitHandler(controller)
 
-	srv := server.InitServer(cfg, handler)
+	logger := logger.InitLogger(cfg)
+	srv := server.InitServer(cfg, handler, logger)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
