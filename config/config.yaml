@@ -6,7 +6,7 @@ EnvironmentVariables:
   Environment: "development"
 Logs:
   Path: ""
-  Level: error
+  Level: info
   MaxAge: 1
   MaxBackups: 4
 
