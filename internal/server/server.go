@@ -1,17 +1,18 @@
 package server
 
 import (
+	"fmt"
 	"log"
-
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.uber.org/zap"
 
 	"Users/config"
 	"Users/docs"
 	"Users/internal/handler"
 	"Users/internal/middleware"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -36,7 +37,8 @@ func (s *Server) Run() error {
 	s.configureSwagger(r)
 	s.handler.ConfigureRoutes(r)
 
-	return r.Run(s.cfg.HTTPServer.Url)
+	address := fmt.Sprintf("%s:%d", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
+	return r.Run(address)
 }
 
 func (s *Server) configureSwagger(router *gin.Engine) {

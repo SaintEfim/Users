@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
-	_ "github.com/lib/pq"
-
 	"Users/config"
 	"Users/internal/models/entity"
 	"Users/internal/models/interfaces"
+
+	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 )
 
 type Repository struct {
@@ -18,7 +18,7 @@ type Repository struct {
 	cfg *config.Config
 }
 
-func InitRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
+func NewRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
 	return &Repository{
 		db:  db,
 		cfg: cfg,

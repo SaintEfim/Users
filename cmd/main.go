@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Users/pkg/logger"
 	"log"
 
 	"Users/config"
@@ -8,7 +9,6 @@ import (
 	"Users/internal/handler"
 	"Users/internal/repository/psql"
 	"Users/internal/server"
-	"Users/pkg"
 )
 
 func main() {
@@ -22,9 +22,9 @@ func main() {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
 
-	rep := psql.InitRepository(db, cfg)
+	rep := psql.NewRepository(db, cfg)
 	controller := controller.NewController(rep)
-	handler := handler.InitHandler(controller)
+	handler := handler.NewHandler(controller)
 
 	logger := logger.InitLogger(cfg)
 	srv := server.InitServer(cfg, handler, logger)

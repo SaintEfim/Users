@@ -20,7 +20,8 @@ type ConnectionStrings struct {
 }
 
 type HTTPServer struct {
-	Url string `yaml:"Url"`
+	Addr string `yaml:"Addr"`
+	Port int    `yaml:"Port"`
 }
 
 type Logs struct {
