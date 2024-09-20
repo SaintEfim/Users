@@ -13,8 +13,8 @@ import (
 func InitLogger(logInfo *config.Config) *zap.Logger {
 	var logger *zap.Logger
 
-	config := zap.NewProductionEncoderConfig()
-	config.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg := zap.NewProductionEncoderConfig()
+	cfg.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	var level zapcore.LevelEnabler
 	switch logInfo.Logs.Level {
@@ -31,7 +31,7 @@ func InitLogger(logInfo *config.Config) *zap.Logger {
 	}
 
 	if logInfo.Logs.Path != "" {
-		fileEncoder := zapcore.NewJSONEncoder(config)
+		fileEncoder := zapcore.NewJSONEncoder(cfg)
 		logRotation := &lumberjack.Logger{
 			Filename:   logInfo.Logs.Path,
 			MaxBackups: logInfo.Logs.MaxBackups,
@@ -45,7 +45,7 @@ func InitLogger(logInfo *config.Config) *zap.Logger {
 		return logger
 	}
 
-	consoleEncoder := zapcore.NewConsoleEncoder(config)
+	consoleEncoder := zapcore.NewConsoleEncoder(cfg)
 	core := zapcore.NewTee(
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
 	)
