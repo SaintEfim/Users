@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Users/pkg/logger"
+	"context"
 	"log"
 
 	"Users/config"
@@ -9,26 +9,40 @@ import (
 	"Users/internal/handler"
 	"Users/internal/repository/psql"
 	"Users/internal/server"
+	"Users/pkg/logger"
+
+	"go.uber.org/fx"
 )
 
+func newServer(lifecycle fx.Lifecycle, srv *server.Server) {
+	lifecycle.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go func() {
+				if err := srv.Run(); err != nil {
+					log.Fatalf("Failed to start server: %v", err)
+				}
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			return nil
+		},
+	})
+}
+
 func main() {
-	cfg, err := config.ReadConfig("config", "yaml", "./config")
-	if err != nil {
-		log.Fatalf("Failed to read configuration: %v", err)
-	}
-
-	db, err := psql.Connect(cfg)
-	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
-	}
-
-	rep := psql.NewRepository(db, cfg)
-	controller := controller.NewController(rep)
-	handler := handler.NewHandler(controller)
-
-	logger := logger.InitLogger(cfg)
-	srv := server.InitServer(cfg, handler, logger)
-	if err := srv.Run(); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+	fx.New(
+		fx.Provide(func() (*config.Config, error) {
+			return config.ReadConfig("config", "yaml", "./config")
+		}),
+		fx.Provide(
+			psql.Connect,
+			psql.NewRepository,
+			controller.NewController,
+			handler.NewHandler,
+			logger.InitLogger,
+			server.InitServer,
+		),
+		fx.Invoke(newServer),
+	).Run()
 }
