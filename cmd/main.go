@@ -1,12 +1,14 @@
 package main
 
 import (
-	"Users/internal/server"
+	"Users/pkg/logger"
 	"log"
 
 	"Users/config"
+	"Users/internal/controller"
 	"Users/internal/handler"
 	"Users/internal/repository/psql"
+	"Users/internal/server"
 )
 
 func main() {
@@ -20,14 +22,12 @@ func main() {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
 
-	rep, err := psql.InitRepository(db, cfg)
-	if err != nil {
-		log.Fatalf("Failed to initialize repository: %v", err)
-	}
+	rep := psql.NewRepository(db, cfg)
+	controller := controller.NewController(rep)
+	handler := handler.NewHandler(controller)
 
-	handler := handler.InitHandler(rep)
-
-	srv := server.InitServer(cfg, handler)
+	logger := logger.InitLogger(cfg)
+	srv := server.InitServer(cfg, handler, logger)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

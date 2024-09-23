@@ -3,9 +3,9 @@ package psql
 import (
 	"fmt"
 
-	"database/sql"
-
 	"Users/config"
+
+	"database/sql"
 )
 
 func Connect(cfg *config.Config) (*sql.DB, error) {

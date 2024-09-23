@@ -4,33 +4,31 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/ulule/deepcopier"
-
 	"Users/internal/models/dto"
 	"Users/internal/models/entity"
 	"Users/internal/models/interfaces"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ulule/deepcopier"
 )
 
 type Handler struct {
-	rep interfaces.UserRepository
+	controller interfaces.Controller
 }
 
-func InitHandler(rep interfaces.UserRepository) *Handler {
-	return &Handler{
-		rep: rep,
-	}
+func NewHandler(controller interfaces.Controller) *Handler {
+	return &Handler{controller: controller}
 }
 
 func (h *Handler) ConfigureRoutes(r *gin.Engine) {
-	r.GET("/api/v1/users", h.HandleGet)
-	r.GET("/api/v1/users/:id", h.HandleGetOneById)
-	r.POST("/api/v1/users", h.HandleCreate)
-	r.DELETE("/api/v1/users/:id", h.HandleDelete)
-	r.PUT("/api/v1/users/:id", h.HandleUpdate)
+	r.GET("/api/v1/users", h.Get)
+	r.GET("/api/v1/users/:id", h.GetOneById)
+	r.POST("/api/v1/users", h.Create)
+	r.DELETE("/api/v1/users/:id", h.Delete)
+	r.PUT("/api/v1/users/:id", h.Update)
 }
 
-// HandleGet - godoc
+// Get - godoc
 // @Summary List users
 // @Description get users
 // @Tags users
@@ -39,19 +37,16 @@ func (h *Handler) ConfigureRoutes(r *gin.Engine) {
 // @Success 200 {object} dto.Response{data=[]dto.UserDto} "Successful response"
 // @Failure 500 {object} dto.Response
 // @Router /api/v1/users [get]
-func (handler *Handler) HandleGet(c *gin.Context) {
-	users, err := handler.rep.Get()
+func (h *Handler) Get(c *gin.Context) {
+	users, err := h.controller.Get()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error retrieving users: %v", err)})
 		return
 	}
-	c.JSON(http.StatusOK, dto.Response{
-		Message: "Users retrieved successfully",
-		Data:    users,
-	})
+	c.JSON(http.StatusOK, dto.Response{Data: users})
 }
 
-// HandleGetOneById - godoc
+// GetOneById - godoc
 // @Summary Get user by ID
 // @Description get user by id
 // @Tags users
@@ -61,22 +56,19 @@ func (handler *Handler) HandleGet(c *gin.Context) {
 // @Success 200 {object} dto.Response{data=dto.UserDto} "Successful response"
 // @Failure 404 {object} dto.Response
 // @Router /api/v1/users/{id} [get]
-func (handler *Handler) HandleGetOneById(c *gin.Context) {
+func (h *Handler) GetOneById(c *gin.Context) {
 	id := c.Param("id")
 
-	user, err := handler.rep.GetOneByID(id)
+	user, err := h.controller.GetOneById(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, dto.Response{Message: "User not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Message: "User retrieved successfully",
-		Data:    user,
-	})
+	c.JSON(http.StatusOK, dto.Response{Data: user})
 }
 
-// HandleCreate - godoc
+// Create - godoc
 // @Summary Create a new user
 // @Description create user
 // @Tags users
@@ -87,7 +79,7 @@ func (handler *Handler) HandleGetOneById(c *gin.Context) {
 // @Failure 400 {object} dto.Response
 // @Failure 500 {object} dto.Response
 // @Router /api/v1/users [post]
-func (handler *Handler) HandleCreate(c *gin.Context) {
+func (h *Handler) Create(c *gin.Context) {
 	var userCreateDto dto.CreateUserDto
 	var userEntity entity.UserEntity
 
@@ -101,18 +93,18 @@ func (handler *Handler) HandleCreate(c *gin.Context) {
 		return
 	}
 
-	if err := handler.rep.Create(&userEntity); err != nil {
+	if err := h.controller.Create(&userEntity); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error creating user: %v", err)})
 		return
 	}
 
 	c.JSON(http.StatusCreated, dto.Response{
 		Message: "User created successfully",
-		Data:    userEntity,
+		Data:    userEntity.Id,
 	})
 }
 
-// HandleDelete - godoc
+// Delete - godoc
 // @Summary Delete user by ID
 // @Description delete user
 // @Tags users
@@ -120,22 +112,20 @@ func (handler *Handler) HandleCreate(c *gin.Context) {
 // @Produce json
 // @Param id path string true "User ID"
 // @Success 200 {object} dto.Response "User deleted successfully"
-// @Failure 404 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.Response
 // @Router /api/v1/users/{id} [delete]
-func (handler *Handler) HandleDelete(c *gin.Context) {
+func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := handler.rep.Delete(id); err != nil {
+	if err := h.controller.Delete(id); err != nil {
 		c.JSON(http.StatusNotFound, dto.Response{Message: "User not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Message: "User deleted successfully",
-	})
+	c.JSON(http.StatusOK, dto.Response{Message: "User deleted successfully"})
 }
 
-// HandleUpdate - godoc
+// Update - godoc
 // @Summary Update user by ID
 // @Description update user`
 // @Tags users
@@ -144,10 +134,10 @@ func (handler *Handler) HandleDelete(c *gin.Context) {
 // @Param id path string true "User ID"
 // @Param user body dto.UpdateUserDto true "User info"
 // @Success 200 {object} dto.Response{data=dto.UserDto} "User updated successfully"
-// @Failure 400 {object} dto.ErrorResponse
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 400 {object} dto.Response
+// @Failure 500 {object} dto.Response
 // @Router /api/v1/users/{id} [put]
-func (handler *Handler) HandleUpdate(c *gin.Context) {
+func (h *Handler) Update(c *gin.Context) {
 
 	id := c.Param("id")
 
@@ -164,13 +154,10 @@ func (handler *Handler) HandleUpdate(c *gin.Context) {
 		return
 	}
 
-	if err := handler.rep.Update(id, &userEntity); err != nil {
+	if err := h.controller.Update(id, &userEntity); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error updating user: %v", err)})
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Message: "User updated successfully",
-		Data:    userEntity,
-	})
+	c.JSON(http.StatusOK, dto.Response{Message: "User updated successfully"})
 }

@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
-	_ "github.com/lib/pq"
-
 	"Users/config"
 	"Users/internal/models/entity"
+	"Users/internal/models/interfaces"
+
+	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 )
 
 type Repository struct {
@@ -17,11 +18,11 @@ type Repository struct {
 	cfg *config.Config
 }
 
-func InitRepository(db *sql.DB, cfg *config.Config) (*Repository, error) {
+func NewRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
 	return &Repository{
 		db:  db,
 		cfg: cfg,
-	}, nil
+	}
 }
 
 func (r *Repository) Get() ([]*entity.UserEntity, error) {
@@ -49,7 +50,7 @@ func (r *Repository) Get() ([]*entity.UserEntity, error) {
 	return users, nil
 }
 
-func (r *Repository) GetOneByID(id string) (*entity.UserEntity, error) {
+func (r *Repository) GetOneById(id string) (*entity.UserEntity, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, fmt.Errorf("invalid UUID: %v", err)
 	}
@@ -104,6 +105,9 @@ func (r *Repository) Update(id string, user *entity.UserEntity) error {
 	}
 
 	result, err := r.db.Exec(updateUser, user.Name, id)
+	if err != nil {
+		return fmt.Errorf("error executing update query: %v", err)
+	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
