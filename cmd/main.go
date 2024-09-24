@@ -17,11 +17,9 @@ import (
 func newServer(lifecycle fx.Lifecycle, srv *server.Server) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go func() {
-				if err := srv.Run(); err != nil {
-					log.Fatalf("Failed to start server: %v", err)
-				}
-			}()
+			if err := srv.Run(); err != nil {
+				log.Fatalf("Failed to start server: %v", err)
+			}
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
