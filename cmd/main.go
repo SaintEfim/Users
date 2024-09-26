@@ -41,6 +41,6 @@ func main() {
 			logger.InitLogger,
 			server.InitServer,
 		),
-		fx.Invoke(newServer),
+		fx.Invoke(registerServer),
 	).Run()
 }
