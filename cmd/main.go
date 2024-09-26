@@ -19,7 +19,7 @@ func registerServer(lifecycle fx.Lifecycle, srv interfaces.Server) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := srv.Run(); err != nil {
-				fmt.Errorf("Failed to start server: %v", err)
+				return fmt.Errorf("failed to start server: %w", err)
 			}
 			return nil
 		},
