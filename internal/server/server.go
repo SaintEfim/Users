@@ -6,8 +6,8 @@ import (
 
 	"Users/config"
 	"Users/docs"
-	"Users/internal/handler"
 	"Users/internal/middleware"
+	"Users/internal/models/interfaces"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -17,11 +17,11 @@ import (
 
 type Server struct {
 	cfg     *config.Config
-	handler *handler.Handler
+	handler interfaces.Handler
 	logger  *zap.Logger
 }
 
-func InitServer(cfg *config.Config, handler *handler.Handler, logger *zap.Logger) *Server {
+func InitServer(cfg *config.Config, handler interfaces.Handler, logger *zap.Logger) *Server {
 	return &Server{
 		cfg:     cfg,
 		handler: handler,

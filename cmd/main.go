@@ -7,6 +7,7 @@ import (
 	"Users/config"
 	"Users/internal/controller"
 	"Users/internal/handler"
+	"Users/internal/models/interfaces"
 	"Users/internal/repository/psql"
 	"Users/internal/server"
 	"Users/pkg/logger"
@@ -14,7 +15,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func registerServer(lifecycle fx.Lifecycle, srv *server.Server) {
+func registerServer(lifecycle fx.Lifecycle, srv interfaces.Server) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := srv.Run(); err != nil {
