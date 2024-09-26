@@ -21,7 +21,7 @@ type ConnectionStrings struct {
 
 type HTTPServer struct {
 	Addr string `yaml:"Addr" json:"Addr"`
-	Port int    `yaml:"Port" json:"Port"`
+	Port string `yaml:"Port" json:"Port"`
 }
 
 type Logs struct {
