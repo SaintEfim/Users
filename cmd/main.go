@@ -14,7 +14,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func newServer(lifecycle fx.Lifecycle, srv *server.Server) {
+func registerServer(lifecycle fx.Lifecycle, srv *server.Server) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := srv.Run(); err != nil {
