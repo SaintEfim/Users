@@ -1,7 +1,6 @@
 package server
 
 import (
-	"Users/internal/models/interfaces"
 	"context"
 	"fmt"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"Users/config"
 	"Users/docs"
 	"Users/internal/middleware"
+	"Users/internal/models/interfaces"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"

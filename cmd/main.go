@@ -7,7 +7,6 @@ import (
 	"Users/config"
 	"Users/internal/controller"
 	"Users/internal/handler"
-	"Users/internal/http_server"
 	"Users/internal/models/interfaces"
 	"Users/internal/repository/psql"
 	"Users/internal/server"
@@ -44,7 +43,7 @@ func main() {
 			controller.NewController,
 			handler.NewHandler,
 			logger.InitLogger,
-			http_server.InitHTTPServer,
+			server.InitHTTPServer,
 			server.InitServer,
 		),
 		fx.Invoke(registerServer),

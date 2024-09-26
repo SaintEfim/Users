@@ -1,8 +1,9 @@
 package server
 
 import (
-	"Users/config"
 	"net/http"
+
+	"Users/config"
 )
 
 func InitHTTPServer(cfg *config.Config) *http.Server {
