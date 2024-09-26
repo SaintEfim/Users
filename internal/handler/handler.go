@@ -16,7 +16,7 @@ type Handler struct {
 	controller interfaces.Controller
 }
 
-func NewHandler(controller interfaces.Controller) *Handler {
+func NewHandler(controller interfaces.Controller) interfaces.Handler {
 	return &Handler{controller: controller}
 }
 

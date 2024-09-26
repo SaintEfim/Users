@@ -7,6 +7,7 @@ import (
 	"Users/config"
 	"Users/internal/controller"
 	"Users/internal/handler"
+	"Users/internal/http_server"
 	"Users/internal/models/interfaces"
 	"Users/internal/repository/psql"
 	"Users/internal/server"
@@ -24,6 +25,9 @@ func registerServer(lifecycle fx.Lifecycle, srv interfaces.Server) {
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
+			if err := srv.Stop(); err != nil {
+				return fmt.Errorf("failed to stop server: %w", err)
+			}
 			return nil
 		},
 	})
@@ -40,6 +44,7 @@ func main() {
 			controller.NewController,
 			handler.NewHandler,
 			logger.InitLogger,
+			http_server.InitHTTPServer,
 			server.InitServer,
 		),
 		fx.Invoke(registerServer),

@@ -1,13 +1,16 @@
 package server
 
 import (
+	"Users/internal/models/interfaces"
+	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"Users/config"
 	"Users/docs"
 	"Users/internal/middleware"
-	"Users/internal/models/interfaces"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -16,13 +19,15 @@ import (
 )
 
 type Server struct {
+	srv     *http.Server
 	cfg     *config.Config
 	handler interfaces.Handler
 	logger  *zap.Logger
 }
 
-func InitServer(cfg *config.Config, handler interfaces.Handler, logger *zap.Logger) *Server {
+func InitServer(srv *http.Server, cfg *config.Config, handler interfaces.Handler, logger *zap.Logger) interfaces.Server {
 	return &Server{
+		srv:     srv,
 		cfg:     cfg,
 		handler: handler,
 		logger:  logger,
@@ -33,15 +38,32 @@ func (s *Server) Run() error {
 	r := gin.Default()
 	r.Use(middleware.LoggingMiddleware(s.logger))
 
-	s.setGinMode()
-	s.configureSwagger(r)
+	s.SetGinMode()
+	s.ConfigureSwagger(r)
 	s.handler.ConfigureRoutes(r)
 
 	address := fmt.Sprintf("%s:%d", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
+
+	s.srv = &http.Server{
+		Addr:    address,
+		Handler: r,
+	}
+
 	return r.Run(address)
 }
 
-func (s *Server) configureSwagger(router *gin.Engine) {
+func (s *Server) Stop() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.srv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("server forced to shutdown: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Server) ConfigureSwagger(router *gin.Engine) {
 	docs.SwaggerInfo.Title = "Users Service API"
 	docs.SwaggerInfo.Description = "This is a sample server Users server."
 	docs.SwaggerInfo.Version = "1.0"
@@ -50,7 +72,7 @@ func (s *Server) configureSwagger(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
-func (s *Server) setGinMode() {
+func (s *Server) SetGinMode() {
 	switch s.cfg.EnvironmentVariables.Environment {
 	case "development":
 		gin.SetMode(gin.DebugMode)
