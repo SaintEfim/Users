@@ -42,7 +42,7 @@ func (s *Server) Run() error {
 	s.ConfigureSwagger(r)
 	s.handler.ConfigureRoutes(r)
 
-	address := fmt.Sprintf("%s:%d", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
+	address := fmt.Sprintf("%s:%s", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
 
 	s.srv = &http.Server{
 		Addr:    address,
