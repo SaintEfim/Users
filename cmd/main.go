@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"Users/config"
 	"Users/internal/controller"
@@ -19,7 +19,7 @@ func registerServer(lifecycle fx.Lifecycle, srv interfaces.Server) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := srv.Run(); err != nil {
-				log.Fatalf("Failed to start server: %v", err)
+				fmt.Errorf("Failed to start server: %v", err)
 			}
 			return nil
 		},
