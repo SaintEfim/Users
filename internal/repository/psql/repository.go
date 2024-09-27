@@ -1,6 +1,7 @@
 package psql
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -25,7 +26,7 @@ func NewRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
 	}
 }
 
-func (r *Repository) Get() ([]*entity.UserEntity, error) {
+func (r *Repository) Get(ctx context.Context) ([]*entity.UserEntity, error) {
 	var users []*entity.UserEntity
 
 	rows, err := r.db.Query(retrieveAllUsers)
@@ -50,7 +51,7 @@ func (r *Repository) Get() ([]*entity.UserEntity, error) {
 	return users, nil
 }
 
-func (r *Repository) GetOneById(id string) (*entity.UserEntity, error) {
+func (r *Repository) GetOneById(ctx context.Context, id string) (*entity.UserEntity, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, fmt.Errorf("invalid UUID: %v", err)
 	}
@@ -67,7 +68,7 @@ func (r *Repository) GetOneById(id string) (*entity.UserEntity, error) {
 	return user, nil
 }
 
-func (r *Repository) Create(user *entity.UserEntity) error {
+func (r *Repository) Create(ctx context.Context, user *entity.UserEntity) error {
 	user.Id, _ = uuid.NewRandom()
 	if _, err := r.db.Exec(createUser, user.Name); err != nil {
 		return fmt.Errorf("could not insert user: %v", err)
@@ -76,7 +77,7 @@ func (r *Repository) Create(user *entity.UserEntity) error {
 	return nil
 }
 
-func (r *Repository) Delete(id string) error {
+func (r *Repository) Delete(ctx context.Context, id string) error {
 	if _, err := uuid.Parse(id); err != nil {
 		return fmt.Errorf("invalid UUID: %v", err)
 	}
@@ -98,7 +99,7 @@ func (r *Repository) Delete(id string) error {
 	return nil
 }
 
-func (r *Repository) Update(id string, user *entity.UserEntity) error {
+func (r *Repository) Update(ctx context.Context, id string, user *entity.UserEntity) error {
 
 	if _, err := uuid.Parse(id); err != nil {
 		return fmt.Errorf("invalid UUID: %v", err)

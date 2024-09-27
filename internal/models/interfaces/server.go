@@ -1,10 +1,14 @@
 package interfaces
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Server interface {
-	Run() error
-	Stop() error
-	ConfigureSwagger(router *gin.Engine)
-	SetGinMode()
+	Run(ctx context.Context) error
+	Stop(ctx context.Context) error
+	ConfigureSwagger(ctx context.Context, router *gin.Engine)
+	SetGinMode(ctx context.Context)
 }
