@@ -32,20 +32,24 @@ func registerServer(lifecycle fx.Lifecycle, srv interfaces.Server) {
 	})
 }
 
+func registerDependencies() fx.Option {
+	return fx.Provide(
+		func() (*config.Config, error) {
+			return config.ReadConfig("config", "yaml", "./config")
+		},
+		psql.Connect,
+		psql.NewRepository,
+		controller.NewController,
+		handler.NewHandler,
+		logger.InitLogger,
+		server.InitHTTPServer,
+		server.InitServer,
+	)
+}
+
 func main() {
 	fx.New(
-		fx.Provide(func() (*config.Config, error) {
-			return config.ReadConfig("config", "yaml", "./config")
-		}),
-		fx.Provide(
-			psql.Connect,
-			psql.NewRepository,
-			controller.NewController,
-			handler.NewHandler,
-			logger.InitLogger,
-			server.InitHTTPServer,
-			server.InitServer,
-		),
+		registerDependencies(),
 		fx.Invoke(registerServer),
 	).Run()
 }
