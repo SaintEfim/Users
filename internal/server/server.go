@@ -35,21 +35,29 @@ func NewServer(srv *http.Server, cfg *config.Config, handler interfaces.Handler,
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	r := gin.Default()
-	r.Use(middleware.LoggingMiddleware(s.logger))
+	g := gin.Default()
+	g.Use(middleware.LoggingMiddleware(s.logger))
 
 	s.SetGinMode(ctx)
-	s.ConfigureSwagger(ctx, r)
-	s.handler.ConfigureRoutes(r)
+	s.ConfigureSwagger(ctx, g)
+	s.handler.ConfigureRoutes(g)
 
-	address := fmt.Sprintf("%s:%s", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
+	s.srv.Handler = g
 
-	s.srv = &http.Server{
-		Addr:    address,
-		Handler: r,
+	errChan := make(chan error, 1)
+	go func() {
+		if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			errChan <- fmt.Errorf("listen: %s", err)
+		}
+		close(errChan)
+	}()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case err := <-errChan:
+		return err
 	}
-
-	return r.Run(address)
 }
 
 func (s *Server) Stop(ctx context.Context) error {
