@@ -27,7 +27,7 @@ type HTTPServer struct {
 type Logs struct {
 	Path       string `yaml:"Path" json:"Path"`
 	Level      string `yaml:"Level" json:"Level"`
-	MaxAge     int    `yaml:"MaxAge" json:"MaxAge"` // measured in Days
+	MaxAge     int    `yaml:"MaxAge" json:"MaxAge"`
 	MaxBackups int    `yaml:"MaxBackups" json:"MaxBackups"`
 }
 

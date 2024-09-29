@@ -43,7 +43,7 @@ func registerDependencies() fx.Option {
 		psql.NewRepository,
 		controller.NewController,
 		handler.NewHandler,
-		logger.InitLogger,
+		logger.NewLogger,
 		server.NewHTTPServer,
 		server.NewServer,
 	)
