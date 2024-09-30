@@ -24,7 +24,7 @@ func registerServer(ctx context.Context, lifecycle fx.Lifecycle, srv interfaces.
 			}()
 
 			if err != nil {
-				return fmt.Errorf("failed to start server: %w", err)
+				return err
 			}
 			return nil
 		},
@@ -55,7 +55,7 @@ func main() {
 			return context.Background()
 		}),
 		fx.Provide(func() (*config.Config, error) {
-			return config.ReadConfig("config", "yaml", "./config")
+			return config.ReadConfig("config", "json", "./config")
 		}),
 		registerDependencies(),
 		fx.Invoke(registerServer),

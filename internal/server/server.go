@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -44,20 +43,13 @@ func (s *Server) Run(ctx context.Context) error {
 
 	s.srv.Handler = g
 
-	errChan := make(chan error, 1)
-	go func() {
-		if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			errChan <- fmt.Errorf("listen: %s", err)
-		}
-		close(errChan)
-	}()
+	s.logger.Sugar().Infof("Listening and serving HTTP on %s\n", s.srv.Addr)
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errChan:
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
+
+	return nil
 }
 
 func (s *Server) Stop(ctx context.Context) error {
@@ -67,7 +59,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	s.srv.RegisterOnShutdown(cancel)
 
 	if err := s.srv.Shutdown(ctx); err != nil {
-		return fmt.Errorf("server forced to shutdown: %w", err)
+		return err
 	}
 
 	return nil

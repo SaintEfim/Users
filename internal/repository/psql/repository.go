@@ -19,6 +19,16 @@ type Repository struct {
 	cfg *config.Config
 }
 
+func Connect(cfg *config.Config) (*sql.DB, error) {
+	db, err := sql.Open("postgres", cfg.ConnectionStrings.ServiceDb)
+
+	if err != nil {
+		return nil, fmt.Errorf("database connecting execution error: %v", err)
+	}
+
+	return db, nil
+}
+
 func NewRepository(db *sql.DB, cfg *config.Config) interfaces.Repository {
 	return &Repository{
 		db:  db,
