@@ -4,7 +4,7 @@
   },
   "http_server": {
     "addr": "localhost",
-    "port": "1000"
+    "port": "1234"
   },
   "environment_variables": {
     "environment": "development"

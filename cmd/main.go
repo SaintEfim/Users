@@ -55,7 +55,7 @@ func main() {
 			return context.Background()
 		}),
 		fx.Provide(func() (*config.Config, error) {
-			return config.ReadConfig("config", "json", "./config")
+			return config.ReadConfig("config", "yaml", "./config")
 		}),
 		registerDependencies(),
 		fx.Invoke(registerServer),
