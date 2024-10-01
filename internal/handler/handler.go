@@ -84,8 +84,11 @@ func (h *Handler) GetOneById(c *gin.Context) {
 // @Router /api/v1/users [post]
 func (h *Handler) Create(c *gin.Context) {
 	ctx := c.Request.Context()
-	var userCreateDto dto.CreateUserDto
-	var userEntity entity.UserEntity
+
+	var (
+		userCreateDto dto.CreateUserDto
+		userEntity    entity.UserEntity
+	)
 
 	if err := c.ShouldBindJSON(&userCreateDto); err != nil {
 		c.JSON(http.StatusBadRequest, dto.Response{Message: fmt.Sprintf("Error decoding request body: %v", err)})
