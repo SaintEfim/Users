@@ -5,30 +5,30 @@ import (
 )
 
 type Config struct {
-	EnvironmentVariables EnvironmentVariables `yaml:"EnvironmentVariables" json:"environment_variables"`
-	ConnectionStrings    ConnectionStrings    `yaml:"ConnectionStrings" json:"connection_strings"`
-	HTTPServer           HTTPServer           `yaml:"HTTPServer" json:"http_server"`
-	Logs                 Logs                 `yaml:"Logs" json:"logs"`
+	EnvironmentVariables EnvironmentVariables `yaml:"EnvironmentVariables"`
+	ConnectionStrings    ConnectionStrings    `yaml:"ConnectionStrings"`
+	HTTPServer           HTTPServer           `yaml:"HTTPServer"`
+	Logs                 Logs                 `yaml:"Logs"`
 }
 
 type EnvironmentVariables struct {
-	Environment string `yaml:"Environment" json:"environment"`
+	Environment string `yaml:"Environment"`
 }
 
 type ConnectionStrings struct {
-	ServiceDb string `yaml:"ServiceDb" json:"service_db"`
+	ServiceDb string `yaml:"ServiceDb"`
 }
 
 type HTTPServer struct {
-	Addr string `yaml:"Addr" json:"addr"`
-	Port string `yaml:"Port" json:"port"`
+	Addr string `yaml:"Addr"`
+	Port string `yaml:"Port"`
 }
 
 type Logs struct {
-	Path       string `yaml:"Path" json:"path"`
-	Level      string `yaml:"Level" json:"level"`
-	MaxAge     int    `yaml:"MaxAge" json:"max_age"`
-	MaxBackups int    `yaml:"MaxBackups" json:"max_backups"`
+	Path       string `yaml:"Path"`
+	Level      string `yaml:"Level"`
+	MaxAge     int    `yaml:"MaxAge"`
+	MaxBackups int    `yaml:"MaxBackups"`
 }
 
 func ReadConfig(cfgName, cfgType, cfgPath string) (*Config, error) {
