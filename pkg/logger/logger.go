@@ -10,7 +10,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func InitLogger(logInfo *config.Config) *zap.Logger {
+func NewLogger(logInfo *config.Config) *zap.Logger {
 	var logger *zap.Logger
 
 	cfg := zap.NewProductionEncoderConfig()

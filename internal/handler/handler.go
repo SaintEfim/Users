@@ -16,7 +16,7 @@ type Handler struct {
 	controller interfaces.Controller
 }
 
-func NewHandler(controller interfaces.Controller) *Handler {
+func NewHandler(controller interfaces.Controller) interfaces.Handler {
 	return &Handler{controller: controller}
 }
 
@@ -38,7 +38,9 @@ func (h *Handler) ConfigureRoutes(r *gin.Engine) {
 // @Failure 500 {object} dto.Response
 // @Router /api/v1/users [get]
 func (h *Handler) Get(c *gin.Context) {
-	users, err := h.controller.Get()
+	ctx := c.Request.Context()
+
+	users, err := h.controller.Get(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error retrieving users: %v", err)})
 		return
@@ -57,9 +59,10 @@ func (h *Handler) Get(c *gin.Context) {
 // @Failure 404 {object} dto.Response
 // @Router /api/v1/users/{id} [get]
 func (h *Handler) GetOneById(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	user, err := h.controller.GetOneById(id)
+	user, err := h.controller.GetOneById(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, dto.Response{Message: "User not found"})
 		return
@@ -80,8 +83,12 @@ func (h *Handler) GetOneById(c *gin.Context) {
 // @Failure 500 {object} dto.Response
 // @Router /api/v1/users [post]
 func (h *Handler) Create(c *gin.Context) {
-	var userCreateDto dto.CreateUserDto
-	var userEntity entity.UserEntity
+	ctx := c.Request.Context()
+
+	var (
+		userCreateDto dto.CreateUserDto
+		userEntity    entity.UserEntity
+	)
 
 	if err := c.ShouldBindJSON(&userCreateDto); err != nil {
 		c.JSON(http.StatusBadRequest, dto.Response{Message: fmt.Sprintf("Error decoding request body: %v", err)})
@@ -93,7 +100,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.controller.Create(&userEntity); err != nil {
+	if err := h.controller.Create(ctx, &userEntity); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error creating user: %v", err)})
 		return
 	}
@@ -115,9 +122,10 @@ func (h *Handler) Create(c *gin.Context) {
 // @Failure 404 {object} dto.Response
 // @Router /api/v1/users/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	if err := h.controller.Delete(id); err != nil {
+	if err := h.controller.Delete(ctx, id); err != nil {
 		c.JSON(http.StatusNotFound, dto.Response{Message: "User not found"})
 		return
 	}
@@ -138,7 +146,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Failure 500 {object} dto.Response
 // @Router /api/v1/users/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
-
+	ctx := c.Request.Context()
 	id := c.Param("id")
 
 	var userUpdateDto dto.UpdateUserDto
@@ -154,7 +162,7 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.controller.Update(id, &userEntity); err != nil {
+	if err := h.controller.Update(ctx, id, &userEntity); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Response{Message: fmt.Sprintf("Error updating user: %v", err)})
 		return
 	}

@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"errors"
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +15,19 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 		startTime := time.Now()
 
 		logFields := []zap.Field{
-			zap.String("method", c.Request.Method),
-			zap.String("url", c.Request.URL.Path),
+			zap.String("client_ip", c.ClientIP()),
+			zap.String("user_agent", c.Request.UserAgent()),
+			zap.String("header", fmt.Sprintf("%v", c.Request.Header)),
+			zap.String("query_parameters", c.Request.URL.Query().Encode()),
+			zap.String("size_request", fmt.Sprintf("%d", c.Writer.Size())),
+		}
+
+		requestBody, err := readRequestBody(c.Request.Body)
+
+		if err != nil {
+			logger.Error("Failed to read request body", zap.Error(err))
+		} else {
+			logFields = append(logFields, zap.String("request_body", requestBody))
 		}
 
 		logger.Info("Incoming request",
@@ -34,4 +48,17 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 			logger.Info("Request completed", logFields...)
 		}
 	}
+}
+
+func readRequestBody(body io.ReadCloser) (string, error) {
+	if body == nil {
+		return "", errors.New("body is not empty")
+	}
+	defer body.Close()
+	buf, err := io.ReadAll(body)
+
+	if err != nil {
+		return "", err
+	}
+	return string(buf), nil
 }

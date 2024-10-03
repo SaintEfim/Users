@@ -2,7 +2,7 @@ ConnectionStrings:
   ServiceDB: "postgres://postgres:1234@localhost/UsersDb?sslmode=disable"
 HTTPServer:
   Addr: "localhost"
-  Port: 1000
+  Port: "1000"
 EnvironmentVariables:
   Environment: "development"
 Logs:

@@ -1,13 +1,15 @@
 package server
 
 import (
-	"fmt"
+	"context"
 	"log"
+	"net/http"
+	"time"
 
 	"Users/config"
 	"Users/docs"
-	"Users/internal/handler"
 	"Users/internal/middleware"
+	"Users/internal/models/interfaces"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -16,32 +18,54 @@ import (
 )
 
 type Server struct {
+	srv     *http.Server
 	cfg     *config.Config
-	handler *handler.Handler
+	handler interfaces.Handler
 	logger  *zap.Logger
 }
 
-func InitServer(cfg *config.Config, handler *handler.Handler, logger *zap.Logger) *Server {
+func NewServer(srv *http.Server, cfg *config.Config, handler interfaces.Handler, logger *zap.Logger) interfaces.Server {
 	return &Server{
+		srv:     srv,
 		cfg:     cfg,
 		handler: handler,
 		logger:  logger,
 	}
 }
 
-func (s *Server) Run() error {
-	r := gin.Default()
-	r.Use(middleware.LoggingMiddleware(s.logger))
+func (s *Server) Run(ctx context.Context) error {
+	g := gin.Default()
+	g.Use(middleware.LoggingMiddleware(s.logger))
 
-	s.setGinMode()
-	s.configureSwagger(r)
-	s.handler.ConfigureRoutes(r)
+	s.SetGinMode(ctx)
+	s.ConfigureSwagger(ctx, g)
+	s.handler.ConfigureRoutes(g)
 
-	address := fmt.Sprintf("%s:%d", s.cfg.HTTPServer.Addr, s.cfg.HTTPServer.Port)
-	return r.Run(address)
+	s.srv.Handler = g
+
+	s.logger.Sugar().Infof("Listening and serving HTTP on %s\n", s.srv.Addr)
+
+	if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+
+	return nil
 }
 
-func (s *Server) configureSwagger(router *gin.Engine) {
+func (s *Server) Stop(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	s.srv.RegisterOnShutdown(cancel)
+
+	if err := s.srv.Shutdown(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) ConfigureSwagger(ctx context.Context, router *gin.Engine) {
 	docs.SwaggerInfo.Title = "Users Service API"
 	docs.SwaggerInfo.Description = "This is a sample server Users server."
 	docs.SwaggerInfo.Version = "1.0"
@@ -50,7 +74,7 @@ func (s *Server) configureSwagger(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
-func (s *Server) setGinMode() {
+func (s *Server) SetGinMode(ctx context.Context) {
 	switch s.cfg.EnvironmentVariables.Environment {
 	case "development":
 		gin.SetMode(gin.DebugMode)
