@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -49,7 +50,7 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 
 func readRequestBody(body io.ReadCloser) (string, error) {
 	if body == nil {
-		return "", nil
+		return "", errors.New("body is not empty")
 	}
 	defer body.Close()
 	buf, err := io.ReadAll(body)
