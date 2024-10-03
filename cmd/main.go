@@ -47,7 +47,7 @@ func main() {
 		}),
 		fx.Provide(
 			psql.Connect,
-			psql.NewPSQLRepository,
+			psql.NewPostgresRepository,
 			controller.NewController,
 			handler.NewHandler,
 			logger.NewLogger,
