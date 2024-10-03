@@ -12,12 +12,17 @@ import (
 func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
+		requestBody, err := readRequestBody(c.Request.Body)
+
+		if err != nil {
+			logger.Error("Failed to read request body", zap.Error(err))
+		}
 
 		logFields := []zap.Field{
 			zap.String("client_ip", c.ClientIP()),
 			zap.String("user_agent", c.Request.UserAgent()),
-			zap.String("hader", fmt.Sprintf("%v", c.Request.Header)),
-			zap.String("request_body", readRequestBody(c.Request.Body)),
+			zap.String("header", fmt.Sprintf("%v", c.Request.Header)),
+			zap.String("request_body", requestBody),
 			zap.String("query_parameters", c.Request.URL.Query().Encode()),
 			zap.String("size_request", fmt.Sprintf("%d", c.Writer.Size())),
 		}
@@ -42,14 +47,15 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-func readRequestBody(body io.ReadCloser) string {
+func readRequestBody(body io.ReadCloser) (string, error) {
 	if body == nil {
-		return ""
+		return "", nil
 	}
 	defer body.Close()
 	buf, err := io.ReadAll(body)
+
 	if err != nil {
-		return ""
+		return "", err
 	}
-	return string(buf)
+	return string(buf), nil
 }
