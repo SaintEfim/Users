@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +14,12 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 		startTime := time.Now()
 
 		logFields := []zap.Field{
-			zap.String("method", c.Request.Method),
-			zap.String("url", c.Request.URL.Path),
+			zap.String("client_ip", c.ClientIP()),
+			zap.String("user_agent", c.Request.UserAgent()),
+			zap.String("hader", fmt.Sprintf("%v", c.Request.Header)),
+			zap.String("request_body", readRequestBody(c.Request.Body)),
+			zap.String("query_parameters", c.Request.URL.Query().Encode()),
+			zap.String("size_request", fmt.Sprintf("%d", c.Writer.Size())),
 		}
 
 		logger.Info("Incoming request",
@@ -34,4 +40,16 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 			logger.Info("Request completed", logFields...)
 		}
 	}
+}
+
+func readRequestBody(body io.ReadCloser) string {
+	if body == nil {
+		return ""
+	}
+	defer body.Close()
+	buf, err := io.ReadAll(body)
+	if err != nil {
+		return ""
+	}
+	return string(buf)
 }
